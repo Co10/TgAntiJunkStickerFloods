@@ -24,6 +24,8 @@ class MsgManager {
     }
 
     this.list = {};
+    this.userAction = {};
+    this.bannedStickers = new Set();
   }
   check(userId) {
     if (userId in this.list) {
@@ -74,6 +76,33 @@ class MsgManager {
       this.list[userId].lastMsg = newMsg;
     }
     return oldMsg;
+  }
+
+  config(userId, action) {
+    if (!(userId in this.userAction)) {
+      this.userAction[userId] = {};
+    }
+    if (action === "add") {
+      this.userAction[userId].add = true;
+    } else if (action === "undo") {
+      this.userAction[userId].add = false;
+    } else if (action === "clear") {
+      this.bannedStickers.clear();
+    }
+  }
+  checkAdd(userId) {
+    return this.userAction[userId] && this.userAction[userId].add;
+  }
+  revokeAdd(userId) {
+    if (this.userAction[userId]) {
+      this.userAction[userId].add = false;
+    }
+  }
+  banSticker(sid) {
+    this.bannedStickers.add(sid);
+  }
+  checkBannedSticker(sid) {
+    return this.bannedStickers.has(sid);
   }
 }
 
